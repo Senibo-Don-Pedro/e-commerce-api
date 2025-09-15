@@ -15,7 +15,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
@@ -26,7 +25,7 @@ public class AuthServiceImpl implements AuthService {
     private final UserRepository users;
     private final JwtUtils jwt;
 
-    @Transactional
+
     @Override
     public void register(SignupRequest req) {
         if (users.existsByUsername(req.username())) {
@@ -64,7 +63,8 @@ public class AuthServiceImpl implements AuthService {
 
         log.info("Login success user={} roles={}", principal.getUsername(), roles);
 
-        return new AuthResponse(principal.getUsername(),
+        return new AuthResponse(principal.getId().toString(),
+                                principal.getUsername(),
                                 principal.getEmail(),
                                 principal.getFirstName(),
                                 principal.getLastName(),

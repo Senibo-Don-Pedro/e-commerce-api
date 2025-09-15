@@ -5,6 +5,7 @@ import com.senibo.e_commerce_api.exception.category.CategoryDeletionException;
 import com.senibo.e_commerce_api.exception.category.CategoryNotFoundException;
 import com.senibo.e_commerce_api.exception.category.DuplicateCategorySlugException;
 import com.senibo.e_commerce_api.exception.product.DuplicateProductSkuException;
+import com.senibo.e_commerce_api.exception.product.InsufficientStockException;
 import com.senibo.e_commerce_api.exception.product.InvalidProductOperationException;
 import com.senibo.e_commerce_api.exception.product.ProductNotFoundException;
 import lombok.extern.slf4j.Slf4j;
@@ -15,7 +16,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.nio.file.AccessDeniedException;
+import org.springframework.security.access.AccessDeniedException;
 import java.util.List;
 
 @Slf4j
@@ -83,7 +84,8 @@ public class GlobalExceptionHandler {
             DuplicateCategorySlugException.class,
             DuplicateProductSkuException.class,
             CategoryDeletionException.class,
-            InvalidProductOperationException.class
+            InvalidProductOperationException.class,
+            InsufficientStockException.class
     })
     public ResponseEntity<ApiResponseDto<?>> handleConflict(ECommerceException ex) {
         log.error("Business logic conflict: {}", ex.getMessage());
