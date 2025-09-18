@@ -16,11 +16,12 @@ spring:
     database-platform: org.hibernate.dialect.MySQL8Dialect
   app:
     jwtSecret: ${JWT_SECRET}
-    jwtExpirationMs: 1800000 #30 minutes
+    jwtExpirationMs: ${JWT_EXPIRATION}
 
 springdoc:
   api-docs:
     path: /v3/api-docs
   swagger-ui:
-    path: /swagger-ui.html
+#    path: /swagger-ui.html
+    path: /swagger
     operations-sorter: method
