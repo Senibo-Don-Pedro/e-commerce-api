@@ -75,14 +75,5 @@ public class AuthServiceImpl implements AuthService {
                                                    roles.getFirst());
 
         return new ApiSuccessResponse<>(true, "Login success", response);
-
-        //        return new LoginResponse(principal.getId().toString(),
-        //                                principal.getUsername(),
-        //                                principal.getEmail(),
-        //                                principal.getFirstName(),
-        //                                principal.getLastName(),
-        //                                token,
-        //                                roles);
-
     }
 }
