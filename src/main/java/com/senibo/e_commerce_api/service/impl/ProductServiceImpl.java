@@ -8,17 +8,21 @@ import com.senibo.e_commerce_api.dto.product.UpdateProductRequest;
 import com.senibo.e_commerce_api.exception.general.NotFoundException;
 import com.senibo.e_commerce_api.exception.general.ResourceConflictException;
 import com.senibo.e_commerce_api.model.product.Product;
+import com.senibo.e_commerce_api.model.product.ProductCategory;
 import com.senibo.e_commerce_api.repository.ProductRepository;
 import com.senibo.e_commerce_api.service.ProductService;
 import com.senibo.e_commerce_api.util.PaginationValidator;
+import com.senibo.e_commerce_api.util.ProductSpecification;
 import com.senibo.e_commerce_api.util.SkuGenerator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.math.BigDecimal;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -82,55 +86,39 @@ public class ProductServiceImpl implements ProductService {
         return new ApiSuccessResponse<>(true, "Product updated successfully", response);
     }
 
-    @Override
-    public void deleteProduct(UUID id) {
-
-    }
-
-    @Override
-    public ApiSuccessResponse<ProductResponse> findProductById(UUID id) {
-        return null;
-    }
 
     @Override
     public ApiSuccessResponse<PagedResult<ProductResponse>> findAllProducts(
             int page,
             int pageSize,
             String sortBy,
-            String sortDirection
+            String sortDirection,
+            Optional<String> searchTerm,
+            Optional<ProductCategory> category,
+            Optional<BigDecimal> minPrice,
+            Optional<BigDecimal> maxPrice
     ) {
-
-        // Step 1: Use validator to create Pageable (handles the messy stuff)
+        // Step 1: Create the Pageable object using your validator
         Pageable pageable = paginationValidator.createPageable(page,
                                                                pageSize,
                                                                sortBy,
                                                                sortDirection);
 
-        // Step 2: Get data from database
-        Page<Product> productPage = productRepository.findAll(pageable);
+        // Step 2: Build the dynamic filter query using your specification builder
+        Specification<Product> spec = ProductSpecification.build(searchTerm,
+                                                                 category,
+                                                                 minPrice,
+                                                                 maxPrice);
 
-        // Step 3: Convert to response DTOs
+        // Step 3: Fetch the data from the repository using both the filter and pagination
+        Page<Product> productPage = productRepository.findAll(spec, pageable);
+
+        // Step 4: Map the result to your clean PagedResult DTO
         Page<ProductResponse> productResponsePage = productPage.map(ProductResponse::fromEntity);
-
-        // Step 4: Convert to our clean format
         PagedResult<ProductResponse> pagedResult = PagedResult.from(productResponsePage);
 
-        // Step 5: Return success response
-        return new ApiSuccessResponse<>(
-                true,
-                "Products retrieved successfully",
-                pagedResult
-        );
-    }
-
-    @Override
-    public ApiSuccessResponse<List<ProductResponse>> findProductsByCategory(String category) {
-        return null;
-    }
-
-    @Override
-    public ApiSuccessResponse<List<ProductResponse>> searchProductsByName(String name) {
-        return null;
+        // Step 5: Return the final success response
+        return new ApiSuccessResponse<>(true, "Products retrieved successfully", pagedResult);
     }
 
 

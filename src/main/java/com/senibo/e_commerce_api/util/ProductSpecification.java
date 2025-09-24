@@ -1,3 +1,4 @@
+// Create this in a new package, e.g., repository/specifications
 package com.senibo.e_commerce_api.util;
 
 import com.senibo.e_commerce_api.model.product.Product;
@@ -5,51 +6,68 @@ import com.senibo.e_commerce_api.model.product.ProductCategory;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 public class ProductSpecification {
 
     /**
-     * The main builder method that constructs the final specification.
-     *
-     * @param category Optional category to filter by.
-     * @param minPrice Optional minimum price.
-     * @param maxPrice Optional maximum price.
-     * @return The combined Specification for querying products.
+     * The main builder method that dynamically constructs the final specification
+     * based on the provided filters.
      */
     public static Specification<Product> build(
+            Optional<String> searchTerm,
             Optional<ProductCategory> category,
             Optional<BigDecimal> minPrice,
             Optional<BigDecimal> maxPrice
             // Add future optional filters here, e.g., Optional<String> brand
     ) {
-        Specification<Product> spec = Specification.where(null);
+        List<Specification<Product>> specs = new ArrayList<>();
 
-        if (category.isPresent()) {
-            spec = spec.and(hasCategory(category.get()));
-        }
-        if (minPrice.isPresent()) {
-            spec = spec.and(priceGreaterThanOrEqual(minPrice.get()));
-        }
-        if (maxPrice.isPresent()) {
-            spec = spec.and(priceLessThanOrEqual(maxPrice.get()));
-        }
+        // Add individual specifications to the list only if the filter is present
+        searchTerm.ifPresent(term -> specs.add(nameOrSkuContains(term)));
+        category.ifPresent(c -> specs.add(hasCategory(c)));
+        minPrice.ifPresent(p -> specs.add(priceGreaterThanOrEqual(p)));
+        maxPrice.ifPresent(p -> specs.add(priceLessThanOrEqual(p)));
         // Add checks for future filters here
 
-        return spec;
+        // Combine all specifications in the list with an "AND" operation
+        return specs.stream().reduce(Specification::and).orElse(null);
     }
 
     // --- Private "Lego Brick" Methods ---
 
+    private static Specification<Product> nameOrSkuContains(String searchTerm) {
+        String searchTermLower = "%" + searchTerm.toLowerCase() + "%";
+
+        return (root, query, cb) ->
+                cb.or(
+                        // WHERE lower(product.name) LIKE %searchTerm%
+                        cb.like(cb.lower(root.get("name")), searchTermLower),
+
+                        // OR lower(product.sku) LIKE %searchTerm%
+                        cb.like(cb.lower(root.get("sku")), searchTermLower)
+
+                );
+    }
+
     private static Specification<Product> hasCategory(ProductCategory category) {
-        return (root, query, cb) -> cb.equal(root.get("category"), category);
+        // Creates a criteria: WHERE product.category = :category
+        return (root, query, criteriaBuilder) ->
+                criteriaBuilder.equal(root.get("category"), category);
     }
 
     private static Specification<Product> priceGreaterThanOrEqual(BigDecimal minPrice) {
-        return (root, query, cb) -> cb.greaterThanOrEqualTo(root.get("price"), minPrice);
+        // Creates a criteria: WHERE product.price >= :minPrice
+        return (root, query, criteriaBuilder) ->
+                criteriaBuilder.greaterThanOrEqualTo(root.get("price"), minPrice);
     }
 
     private static Specification<Product> priceLessThanOrEqual(BigDecimal maxPrice) {
-        return (root, query, cb) -> cb.lessThanOrEqualTo(root.get("price"), maxPrice);
+        // Creates a criteria: WHERE product.price <= :maxPrice
+        return (root, query, criteriaBuilder) ->
+                criteriaBuilder.lessThanOrEqualTo(root.get("price"), maxPrice);
     }
+    
 }

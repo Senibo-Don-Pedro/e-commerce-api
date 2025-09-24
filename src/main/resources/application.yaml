@@ -19,6 +19,8 @@ spring:
   app:
     jwtSecret: ${JWT_SECRET}
     jwtExpirationMs: ${JWT_EXPIRATION}
+    paystack-test-secret-key: ${PAYSTACK_TEST_SECRET_KEY}
+    paystack-test-public-key: ${PAYSTACK_TEST_PUBLIC_KEY}
 
 springdoc:
   api-docs:

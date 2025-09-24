@@ -16,11 +16,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-
-import java.util.List;
 
 @Configuration
 @EnableMethodSecurity
@@ -51,6 +46,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/v1/auth/**").permitAll()
                 .requestMatchers("/v3/api-docs/**", "/swagger", "/swagger-ui/**",
                                  "/swagger-ui.html").permitAll()
+                .requestMatchers("/api/v1/products/**").permitAll()
                 .anyRequest().authenticated());
         http.exceptionHandling(e -> e
                 .authenticationEntryPoint(securityErrorHandler)
@@ -59,18 +55,18 @@ public class SecurityConfig {
         return http.build();
     }
 
-//    // 2. Create a bean to define the CORS configuration
-//    @Bean
-//    CorsConfigurationSource corsConfigurationSource() {
-//        CorsConfiguration configuration = new CorsConfiguration();
-//        // Allow requests from the origin where your Swagger UI is running
-//        configuration.setAllowedOrigins(List.of("http://localhost:8080", "http://localhost:4403"));
-//        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-//        configuration.setAllowedHeaders(List.of("*"));
-//        configuration.setAllowCredentials(true);
-//
-//        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-//        source.registerCorsConfiguration("/**", configuration);
-//        return source;
-//    }
+    //    // 2. Create a bean to define the CORS configuration
+    //    @Bean
+    //    CorsConfigurationSource corsConfigurationSource() {
+    //        CorsConfiguration configuration = new CorsConfiguration();
+    //        // Allow requests from the origin where your Swagger UI is running
+    //        configuration.setAllowedOrigins(List.of("http://localhost:8080", "http://localhost:4403"));
+    //        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+    //        configuration.setAllowedHeaders(List.of("*"));
+    //        configuration.setAllowCredentials(true);
+    //
+    //        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+    //        source.registerCorsConfiguration("/**", configuration);
+    //        return source;
+    //    }
 }
