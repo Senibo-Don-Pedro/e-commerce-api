@@ -22,7 +22,7 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/v1/products")
 @RequiredArgsConstructor
-@Tag(name = "Product", description = "Endpoints for viewing and searching products.")
+@Tag(name = "product-controller", description = "Endpoints for viewing and searching products.")
 public class ProductController {
 
     private final ProductService productService;

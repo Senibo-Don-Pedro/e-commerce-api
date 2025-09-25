@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/v1/payments")
 @RequiredArgsConstructor
-@Tag(name = "Payment", description = "Endpoints for handling payments.")
+@Tag(name = "payment-controller", description = "Endpoints for handling payments.")
 public class PaymentController {
 
     private final PaymentService paymentService;

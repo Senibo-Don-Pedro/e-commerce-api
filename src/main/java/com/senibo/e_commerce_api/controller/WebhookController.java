@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/v1/webhooks")
 @RequiredArgsConstructor
-@Tag(name = "Webhook",
+@Tag(name = "webhook-controller",
         description = "Endpoints for receiving webhook notifications from external services.")
 public class WebhookController {
 
