@@ -14,27 +14,44 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
+/**
+ * A centralized handler for security-related exceptions.
+ * Implements {@link AuthenticationEntryPoint} to handle 401 Unauthorized errors
+ * and {@link AccessDeniedHandler} to handle 403 Forbidden errors, providing
+ * consistent JSON error responses for both.
+ */
 @Component
 @RequiredArgsConstructor
 public class SecurityErrorHandler implements AuthenticationEntryPoint, AccessDeniedHandler {
 
     private final ObjectMapper objectMapper;
 
+    /**
+     * A helper method to write a standardized JSON error response to the client.
+     */
     private void write(HttpServletResponse res, int status, String message) throws IOException {
         res.setStatus(status);
         res.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        objectMapper.writeValue(res.getOutputStream(), new ApiErrorResponse(false,message,null));
+        objectMapper.writeValue(res.getOutputStream(), new ApiErrorResponse(false, message, null));
     }
 
-    // 401 – unauthenticated (bad/missing/expired token)
+    /**
+     * Handles authentication failures (e.g., bad/missing/expired token), returning a 401 Unauthorized status.
+     */
     @Override
-    public void commence(HttpServletRequest req, HttpServletResponse res, AuthenticationException ex) throws IOException {
-        write(res, HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
+    public void commence(HttpServletRequest req,
+                         HttpServletResponse res,
+                         AuthenticationException ex) throws IOException {
+        write(res, HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized: " + ex.getMessage());
     }
 
-    // 403 – authenticated but not allowed
+    /**
+     * Handles authorization failures (e.g., authenticated user lacks required roles), returning a 403 Forbidden status.
+     */
     @Override
-    public void handle(HttpServletRequest req, HttpServletResponse res, AccessDeniedException ex) throws IOException {
-        write(res, HttpServletResponse.SC_FORBIDDEN, "Forbidden");
+    public void handle(HttpServletRequest req,
+                       HttpServletResponse res,
+                       AccessDeniedException ex) throws IOException {
+        write(res, HttpServletResponse.SC_FORBIDDEN, "Forbidden: " + ex.getMessage());
     }
 }

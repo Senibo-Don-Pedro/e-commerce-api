@@ -22,6 +22,9 @@ import java.util.Collections;
 import java.util.Optional;
 import java.util.UUID;
 
+/**
+ * Implements the service for managing user shopping carts.
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -31,29 +34,32 @@ public class CartServiceImpl implements CartService {
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
 
+    /**
+     * Adds an item to the user's shopping cart or updates its quantity if it already exists.
+     *
+     * @param userId  The ID of the user.
+     * @param request DTO containing the product ID and quantity to add.
+     * @return The updated state of the cart as a DTO.
+     * @throws NotFoundException          if the user or product is not found.
+     * @throws InsufficientStockException if the requested quantity exceeds available stock.
+     */
     @Override
     @Transactional
-    // Ensures all database operations in this method are part of a single transaction
     public CartResponse addItemToCart(UUID userId, AddItemToCartRequest request) {
-        // 1. Find the User
         User user = userRepository.findById(userId)
                                   .orElseThrow(() -> new NotFoundException("User not found"));
 
-        // 2. Find the user's cart, or create a new one if it doesn't exist
         Cart cart = cartRepository.findByUserId(userId)
                                   .orElseGet(() -> createNewCartForUser(user));
 
-        // 3. Find the product to be added to the cart
         Product product = productRepository.findById(request.productId())
                                            .orElseThrow(() -> new NotFoundException(
                                                    "Product not found"));
 
-        // 4. Check if there is enough stock
         if (product.getStockQuantity() < request.quantity()) {
-            throw new InsufficientStockException("Not enough stock available for product: " + product.getName());
+            throw new InsufficientStockException("Not enough stock for product: " + product.getName());
         }
 
-        // 5. Check if the item is already in the cart
         Optional<CartItem> existingItemOpt = cart.getCartItems().stream()
                                                  .filter(item -> item.getProduct()
                                                                      .getId()
@@ -73,72 +79,66 @@ public class CartServiceImpl implements CartService {
             cart.getCartItems().add(newItem);
         }
 
-        // 7. Save the cart (changes to CartItems will be cascaded) and return the response
         Cart savedCart = cartRepository.save(cart);
         return CartResponse.fromEntity(savedCart);
     }
 
-    //    public CartResponse getCartForUser(UUID userId) {
-    //        // Find the cart by the user's ID
-    //        Optional<Cart> cartOpt = cartRepository.findByUserId(userId);
-    //
-    //        if (cartOpt.isPresent()) {
-    //            // If the cart exists, convert it to a DTO and return it
-    //            return CartResponse.fromEntity(cartOpt.get());
-    //        } else {
-    //            // If the user has no cart yet, return a new, empty cart response
-    //            // This is better than a 404 error, as a user always conceptually has a cart.
-    //            return new CartResponse(null, Collections.emptyList(), 0, BigDecimal.ZERO);
-    //        }
-    //    }
+    /**
+     * Retrieves the cart for a specific user.
+     *
+     * @param userId The ID of the user whose cart is to be retrieved.
+     * @return The user's cart as a DTO, or an empty cart DTO if none exists.
+     */
+    @Override
     public CartResponse getCartForUser(UUID userId) {
-        // Find the cart by the user's ID
-        Optional<Cart> cartOpt = cartRepository.findByUserId(userId);
-        // If the cart exists, convert it to a DTO and return it
-        // If the user has no cart yet, return a new, empty cart response
-        // This is better than a 404 error, as a user always conceptually has a cart.
-        return cartOpt.map(CartResponse::fromEntity)
-                      .orElseGet(() -> new CartResponse(null,
-                                                        Collections.emptyList(),
-                                                        0,
-                                                        BigDecimal.ZERO));
+        return cartRepository.findByUserId(userId)
+                             .map(CartResponse::fromEntity)
+                             .orElseGet(() -> new CartResponse(null,
+                                                               Collections.emptyList(),
+                                                               0,
+                                                               BigDecimal.ZERO));
     }
 
+    /**
+     * Removes a specific item from a user's cart.
+     *
+     * @param userId The ID of the user.
+     * @param itemId The ID of the cart item to be removed.
+     * @return The updated state of the cart as a DTO.
+     * @throws NotFoundException if the cart or the item within the cart is not found.
+     */
     @Override
     @Transactional
     public CartResponse removeItemFromCart(UUID userId, UUID itemId) {
-        // 1. Find the user's cart
         Cart cart = cartRepository.findByUserId(userId)
                                   .orElseThrow(() -> new NotFoundException(
                                           "Cart not found for user."));
 
-        // 2. Find the specific item within that user's cart
         CartItem itemToRemove = cart.getCartItems().stream()
                                     .filter(item -> item.getId().equals(itemId))
                                     .findFirst()
                                     .orElseThrow(() -> new NotFoundException(
                                             "Cart item not found in your cart."));
 
-        // 3. Log the action for auditing and debugging
-        log.info("User '{}' is removing cart item '{}' (Product: {})",
+        log.info("User '{}' removing cart item '{}' (Product: {})",
                  userId, itemId, itemToRemove.getProduct().getName());
 
-        // 4. Remove the item from the collection
         cart.getCartItems().remove(itemToRemove);
 
-        // 5. Save the cart
         Cart updatedCart = cartRepository.save(cart);
 
-        // 6. Return the updated state of the cart
         return CartResponse.fromEntity(updatedCart);
     }
 
-
+    /**
+     * A private helper method to create and persist a new, empty cart for a user.
+     *
+     * @param user The user for whom to create the cart.
+     * @return The newly created Cart entity.
+     */
     private Cart createNewCartForUser(User user) {
         Cart newCart = new Cart();
         newCart.setUser(user);
         return cartRepository.save(newCart);
     }
-
-
 }

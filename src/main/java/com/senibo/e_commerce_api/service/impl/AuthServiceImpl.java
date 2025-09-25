@@ -18,6 +18,9 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+/**
+ * Implements the authentication service for user registration and login.
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -27,11 +30,16 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtUtils jwt;
 
+    /**
+     * Registers a new user in the system.
+     *
+     * @param registerRequest DTO containing new user details.
+     * @return A success response upon successful registration.
+     * @throws AuthenticationException if the username or email is already taken.
+     */
     @Override
     public ApiSuccessResponse<Object> registerUser(RegisterRequest registerRequest) {
-        // Step 1: Handle the "failure" case
         if (userRepository.existsByUsername(registerRequest.username())) {
-            // Later, a global handler will catch this and create your ApiErrorResponse
             throw new AuthenticationException("Username is already taken.");
         }
 
@@ -52,6 +60,12 @@ public class AuthServiceImpl implements AuthService {
         return new ApiSuccessResponse<>(true, "User registered successfully", null);
     }
 
+    /**
+     * Authenticates a user and provides a JWT upon successful login.
+     *
+     * @param req DTO containing user credentials (username/email and password).
+     * @return A response containing the JWT and user details.
+     */
     @Override
     public ApiSuccessResponse<LoginResponse> login(LoginRequest req) {
         var auth = authManager.authenticate(new UsernamePasswordAuthenticationToken(req.identifier(),

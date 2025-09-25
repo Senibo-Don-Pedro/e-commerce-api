@@ -1,5 +1,6 @@
 package com.senibo.e_commerce_api.service.impl;
 
+import com.senibo.e_commerce_api.exception.general.InvalidOperationException;
 import com.senibo.e_commerce_api.exception.general.NotFoundException;
 import com.senibo.e_commerce_api.model.auth.User;
 import com.senibo.e_commerce_api.model.cart.Cart;
@@ -19,6 +20,9 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+/**
+ * Implements the service for managing customer orders.
+ */
 @Service
 @RequiredArgsConstructor
 public class OrderServiceImpl implements OrderService {
@@ -27,10 +31,19 @@ public class OrderServiceImpl implements OrderService {
     private final CartRepository cartRepository;
     private final UserRepository userRepository;
 
+    /**
+     * Creates a permanent order from a user's current shopping cart.
+     * This operation is transactional: it succeeds completely or not at all.
+     * Upon success, the user's cart is cleared.
+     *
+     * @param userId The ID of the user placing the order.
+     * @return The newly created Order entity.
+     * @throws NotFoundException         if the user or their cart is not found.
+     * @throws InvalidOperationException if the cart is empty.
+     */
     @Override
-    @Transactional // This is important to ensure all operations succeed or fail together
+    @Transactional
     public Order createOrderFromCart(UUID userId) {
-
         User user = userRepository.findById(userId)
                                   .orElseThrow(() -> new NotFoundException("User not found"));
 
@@ -38,7 +51,7 @@ public class OrderServiceImpl implements OrderService {
                                   .orElseThrow(() -> new NotFoundException("Cart is empty"));
 
         if (cart.getCartItems().isEmpty()) {
-            throw new IllegalStateException("Cannot create an order from an empty cart."); // Switched to a more fitting exception
+            throw new InvalidOperationException("Cannot create an order from an empty cart.");
         }
 
         Order order = new Order();
@@ -58,7 +71,7 @@ public class OrderServiceImpl implements OrderService {
 
         order.setOrderItems(orderItems);
 
-        // Calculate total amount directly from the new orderItems list
+        // Calculate total amount
         BigDecimal totalAmount = orderItems.stream()
                                            .map(item -> item.getPricePerUnit()
                                                             .multiply(BigDecimal.valueOf(item.getQuantity())))
@@ -66,16 +79,12 @@ public class OrderServiceImpl implements OrderService {
 
         order.setTotalAmount(totalAmount);
 
-        // 1. Save the newly created order
         Order savedOrder = orderRepository.save(order);
 
-        // 2. Clear the items from the user's cart
+        // Clear the user's cart and save it
         cart.getCartItems().clear();
-
-        // 3. Save the updated (now empty) cart
         cartRepository.save(cart);
 
-        // 4. Return the order that was created
         return savedOrder;
     }
 }

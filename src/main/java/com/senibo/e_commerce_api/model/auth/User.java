@@ -41,6 +41,11 @@ public class User extends BaseEntity {
     @Builder.Default
     private Role role = Role.CUSTOMER;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    @Builder.Default
+    private Provider provider = Provider.LOCAL;
+
     //Relationships
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private Cart cart;

@@ -21,6 +21,19 @@ spring:
     jwtExpirationMs: ${JWT_EXPIRATION}
     paystack-test-secret-key: ${PAYSTACK_TEST_SECRET_KEY}
     paystack-test-public-key: ${PAYSTACK_TEST_PUBLIC_KEY}
+    ngrok-url: https://unsnaky-purselike-jolyn.ngrok-free.dev
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID}
+            client-secret: ${GOOGLE_CLIENT_SECRET}
+            scope: profile,email
+#          facebook:
+#            client-id:
+#            client-secret:
+#            scope: public_profile,email
 
 springdoc:
   api-docs:
