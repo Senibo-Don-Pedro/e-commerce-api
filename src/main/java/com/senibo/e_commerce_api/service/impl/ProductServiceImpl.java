@@ -128,4 +128,24 @@ public class ProductServiceImpl implements ProductService {
 
         return new ApiSuccessResponse<>(true, "Products retrieved successfully", pagedResult);
     }
+
+    /**
+     * Gets a single product by its ID.
+     *
+     * @param id The ID of the product to get.
+     * @return A success response containing the single product's DTO.
+     * @throws NotFoundException if no product with the given ID is found.
+     */
+    @Override
+    public ApiSuccessResponse<ProductResponse> findProductById(UUID id) {
+        Product product = productRepository.findById(id)
+                                           .orElseThrow(() -> new NotFoundException(
+                                                   "Product not found"));
+
+        ProductResponse response = ProductResponse.fromEntity(product);
+
+        return new ApiSuccessResponse<>(true, "Product found successfully", response);
+    }
+
+
 }

@@ -43,4 +43,6 @@ public interface ProductService {
             Optional<BigDecimal> maxPrice
     );
 
+    ApiSuccessResponse<ProductResponse> findProductById(UUID id);
+
 }
