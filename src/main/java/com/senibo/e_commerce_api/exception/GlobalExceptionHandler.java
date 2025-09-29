@@ -13,6 +13,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.FieldError;
+import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -153,6 +154,27 @@ public class GlobalExceptionHandler {
         log.warn("Database integrity constraint violated: {}", ex.getMessage());
         return new ApiErrorResponse(false,
                                     "A database constraint was violated. Please check your data.",
+                                    null);
+    }
+
+
+    // =======================================================================================
+    // == 415 UNSUPPORTED MEDIA TYPE =========================================================
+    // =======================================================================================
+
+    /**
+     * Handles errors when the client sends an unsupported Content-Type header.
+     * This is the correct, specific status code for this type of client error.
+     */
+    @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
+    @ResponseStatus(HttpStatus.UNSUPPORTED_MEDIA_TYPE) // Use the 415 status code
+    public ApiErrorResponse handleHttpMediaTypeNotSupportedException(
+            HttpMediaTypeNotSupportedException ex) {
+        log.warn(
+                "Unsupported Content-Type received: {}. Supported types are likely application/json.",
+                ex.getContentType());
+        return new ApiErrorResponse(false,
+                                    "The content type of your request is not supported. Please use 'application/json'.",
                                     null);
     }
 

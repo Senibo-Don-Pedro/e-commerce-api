@@ -6,8 +6,10 @@ import com.senibo.e_commerce_api.client.dto.PaystackInitRequest;
 import com.senibo.e_commerce_api.client.dto.PaystackInitResponse;
 import com.senibo.e_commerce_api.client.dto.PaystackWebhookPayload;
 import com.senibo.e_commerce_api.exception.general.NotFoundException;
+import com.senibo.e_commerce_api.model.cart.Cart;
 import com.senibo.e_commerce_api.model.order.Order;
 import com.senibo.e_commerce_api.model.order.OrderStatus;
+import com.senibo.e_commerce_api.repository.CartRepository;
 import com.senibo.e_commerce_api.repository.OrderRepository;
 import com.senibo.e_commerce_api.service.OrderService;
 import com.senibo.e_commerce_api.service.PaymentService;
@@ -36,6 +38,7 @@ public class PaymentServiceImpl implements PaymentService {
     private final OrderService orderService;
     private final PaystackClient paystackClient;
     private final ObjectMapper objectMapper;
+    private final CartRepository cartRepository; //Inject the CartRepository
 
     @Value("${spring.app.paystack-test-secret-key}")
     private String paystackSecretKey;
@@ -100,6 +103,16 @@ public class PaymentServiceImpl implements PaymentService {
                 order.setOrderStatus(OrderStatus.PAID);
                 orderRepository.save(order);
                 log.info("Order {} has been updated to PAID.", order.getId());
+
+                // --- THIS IS THE NEW LOGIC ---
+                // After confirming the order is paid, we now clear the user's cart.
+                Cart cart = cartRepository.findByUserId(order.getUser().getId())
+                                          .orElseThrow(() -> new NotFoundException(
+                                                  "Cart not found for user after successful payment."));
+                cart.getCartItems().clear();
+                cartRepository.save(cart);
+                log.info("Cart for user {} has been cleared.", order.getUser().getId());
+                // -----------------------------
             }
         } catch (Exception e) {
             log.error("Error processing Paystack webhook", e);

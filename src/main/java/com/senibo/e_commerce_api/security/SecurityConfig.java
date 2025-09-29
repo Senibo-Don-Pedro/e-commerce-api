@@ -85,9 +85,12 @@ public class SecurityConfig {
         // Configure authorization rules for different endpoints
         http.authorizeHttpRequests(auth -> auth
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                .requestMatchers("/api/v1/auth/**", "/login/**", "/oauth2/**").permitAll()
+                .requestMatchers("/api/v1/auth/**", "/login/**").permitAll()
+                .requestMatchers("/oauth2/**").permitAll()
                 .requestMatchers("/v3/api-docs/**", "/swagger*/**", "/webjars/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/products/**").permitAll()
+                // --- ADD THIS LINE ---
+                .requestMatchers("/api/v1/users/me").authenticated()
                 .requestMatchers("/api/v1/webhooks/**").permitAll()
                 .anyRequest().authenticated());
 
@@ -125,6 +128,8 @@ public class SecurityConfig {
         // Specify allowed origins explicitly for security
         configuration.setAllowedOrigins(List.of(
                 "http://localhost:4403",
+                "http://localhost:3000",
+                "https://6r9jltnq-3000.uks1.devtunnels.ms",
                 ngrokUrl
         ));
 

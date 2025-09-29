@@ -81,9 +81,11 @@ public class OrderServiceImpl implements OrderService {
 
         Order savedOrder = orderRepository.save(order);
 
-        // Clear the user's cart and save it
-        cart.getCartItems().clear();
-        cartRepository.save(cart);
+        // --- THIS IS THE CHANGE ---
+        // We NO LONGER clear the cart here.
+        // cart.getCartItems().clear();
+        // cartRepository.save(cart);
+        // ------------------------
 
         return savedOrder;
     }
