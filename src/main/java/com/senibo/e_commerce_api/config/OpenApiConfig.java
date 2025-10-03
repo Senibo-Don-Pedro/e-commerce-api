@@ -27,9 +27,9 @@ import org.springframework.context.annotation.Configuration;
                 contact = @Contact(name = "Senibo Don-Pedro", email = "senibodonpedro@gmail.com")
         ),
         servers = {
+                @Server(url = "https://e-commerce-api-4dj1.onrender.com",
+                        description = "Live Production Server"),
                 @Server(url = "http://localhost:4403", description = "Local Development Server"),
-                @Server(url = "https://unsnaky-purselike-jolyn.ngrok-free.dev",
-                        description = "Ngrok Development Server")
         },
         security = @SecurityRequirement(name = "bearerAuth")
 )
