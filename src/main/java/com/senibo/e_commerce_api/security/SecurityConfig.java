@@ -73,7 +73,7 @@ public class SecurityConfig {
     @Bean
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         // Configure Cross-Origin Resource Sharing (CORS)
-        http.cors(cors -> cors.configurationSource(corsConfigurationSource(null)));
+        http.cors(cors -> cors.configurationSource(corsConfigurationSource(null, null)));
 
         // Disable Cross-Site Request Forgery (CSRF) as we are using token-based auth
         http.csrf(AbstractHttpConfigurer::disable);
@@ -116,12 +116,12 @@ public class SecurityConfig {
     /**
      * Defines the CORS configuration for the application.
      *
-     * @param ngrokUrl The dynamic Ngrok URL for development, injected from properties.
      * @return A {@link CorsConfigurationSource} with the defined policies.
      */
     @Bean
     CorsConfigurationSource corsConfigurationSource(
-            @Value("${spring.app.live-url}") String liveUrl
+            @Value("${spring.app.live-url}") String liveUrl,
+            @Value("${spring.app.frontend-url}") String frontendUrl
     ) {
         CorsConfiguration configuration = new CorsConfiguration();
 
@@ -129,7 +129,8 @@ public class SecurityConfig {
         configuration.setAllowedOrigins(List.of(
                 "http://localhost:4403",
                 "http://localhost:3000",
-                liveUrl
+                liveUrl,
+                frontendUrl
         ));
 
         configuration.setAllowedMethods(List.of("GET",

@@ -22,6 +22,7 @@ spring:
     paystack-test-secret-key: ${PAYSTACK_TEST_SECRET_KEY}
     paystack-test-public-key: ${PAYSTACK_TEST_PUBLIC_KEY}
     live-url: ${LIVE_URL}
+    frontend-url: ${FRONTEND_URL}
   security:
     oauth2:
       client:

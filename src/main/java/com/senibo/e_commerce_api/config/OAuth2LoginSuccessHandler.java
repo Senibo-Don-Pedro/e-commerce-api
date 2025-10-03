@@ -9,6 +9,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.DefaultRedirectStrategy;
@@ -32,6 +33,10 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
     private final JwtUtils jwtService;
     private final UserRepository userRepository;
     private final RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
+
+    // Inject the frontend URL from the environment
+    @Value("${spring.app.frontend-url}")
+    String frontendUrl;
 
     /**
      * Called when a user has been successfully authenticated via OAuth2.
@@ -63,7 +68,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 
         // The frontend will be responsible for parsing the token from the URL
         // and storing it (e.g., in localStorage).
-        String targetUrl = "https://e-commerce-frontend-seven-silk.vercel.app/oauth-redirect?token=" + jwtToken;
+        String targetUrl = frontendUrl + "/oauth-redirect?token=" + jwtToken;
 
         redirectStrategy.sendRedirect(request, response, targetUrl);
     }
