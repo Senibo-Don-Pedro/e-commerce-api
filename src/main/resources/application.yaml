@@ -1,5 +1,5 @@
 server:
-  port: 4403
+  port: ${PORT:4403}
 
 spring:
   profiles:
@@ -7,7 +7,7 @@ spring:
   application:
     name: e-commerce-api
   datasource:
-    url: jdbc:mysql://localhost:3306/e_commerce_project_db
+    url: ${MY_SQL_URL}
     username: ${MY_SQL_USERNAME}
     password: ${MY_SQL_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -21,7 +21,7 @@ spring:
     jwtExpirationMs: ${JWT_EXPIRATION}
     paystack-test-secret-key: ${PAYSTACK_TEST_SECRET_KEY}
     paystack-test-public-key: ${PAYSTACK_TEST_PUBLIC_KEY}
-    ngrok-url: ${NGROK_URL}
+    live-url: ${LIVE_URL}
   security:
     oauth2:
       client:

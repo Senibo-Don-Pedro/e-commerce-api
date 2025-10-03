@@ -29,11 +29,11 @@ public class ProductController {
     @GetMapping
     public ResponseEntity<ApiSuccessResponse<PagedResult<ProductResponse>>> getAllProducts(
             // Pagination Parameters
-            @Parameter(description = "Page number (0-based)", example = "0")
+            @Parameter(description = "Page number (0-based)")
             @RequestParam(defaultValue = "0")
             int page,
 
-            @Parameter(description = "Number of items per page (max 100)", example = "10")
+            @Parameter(description = "Number of items per page (max 100)")
             @RequestParam(defaultValue = "10")
             int pageSize,
 
@@ -58,11 +58,11 @@ public class ProductController {
             @RequestParam(required = false)
             ProductCategory category,
 
-            @Parameter(description = "Filter by minimum price (inclusive)", example = "50.00")
+            @Parameter(description = "Filter by minimum price (inclusive)")
             @RequestParam(required = false)
             BigDecimal minPrice,
 
-            @Parameter(description = "Filter by maximum price (inclusive)", example = "250.00")
+            @Parameter(description = "Filter by maximum price (inclusive)")
             @RequestParam(required = false)
             BigDecimal maxPrice
     ) {

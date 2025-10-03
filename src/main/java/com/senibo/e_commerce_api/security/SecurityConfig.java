@@ -121,7 +121,7 @@ public class SecurityConfig {
      */
     @Bean
     CorsConfigurationSource corsConfigurationSource(
-            @Value("${spring.app.ngrok-url}") String ngrokUrl
+            @Value("${spring.app.live-url}") String liveUrl
     ) {
         CorsConfiguration configuration = new CorsConfiguration();
 
@@ -129,8 +129,7 @@ public class SecurityConfig {
         configuration.setAllowedOrigins(List.of(
                 "http://localhost:4403",
                 "http://localhost:3000",
-                "https://6r9jltnq-3000.uks1.devtunnels.ms",
-                ngrokUrl
+                liveUrl
         ));
 
         configuration.setAllowedMethods(List.of("GET",

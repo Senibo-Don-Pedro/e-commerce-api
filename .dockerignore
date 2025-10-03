@@ -1,0 +1,44 @@
+# Build artifacts
+target/
+build/
+
+# Environment and secrets
+.env
+.env.local
+.env.*.local
+
+# Version control
+.git
+.gitignore
+.gitattributes
+
+# IDE files
+.idea
+.vscode
+*.iml
+*.ipr
+*.iws
+.settings
+.classpath
+.project
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Documentation
+*.md
+README.md
+LICENSE
+
+# Docker files (no need to copy into image)
+Dockerfile
+.dockerignore
+docker-compose.yml
+
+# Logs
+*.log
+logs/
+
+# Test files
+src/test/
