@@ -63,7 +63,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 
         // The frontend will be responsible for parsing the token from the URL
         // and storing it (e.g., in localStorage).
-        String targetUrl = "http://localhost:3000/oauth-redirect?token=" + jwtToken;
+        String targetUrl = "https://e-commerce-frontend-seven-silk.vercel.app/oauth-redirect?token=" + jwtToken;
 
         redirectStrategy.sendRedirect(request, response, targetUrl);
     }
